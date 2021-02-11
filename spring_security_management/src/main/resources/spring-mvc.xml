@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:context="http://www.springframework.org/schema/context"
+        xmlns:aop="http://www.springframework.org/schema/aop"
+        xmlns:tx="http://www.springframework.org/schema/tx"
+        xmlns:mvc="http://www.springframework.org/schema/mvc"
+        xmlns:security="http://www.springframework.org/schema/security"
+        xsi:schemaLocation="http://www.springframework.org/schema/beans
+			    http://www.springframework.org/schema/beans/spring-beans.xsd
+			    http://www.springframework.org/schema/context
+			    http://www.springframework.org/schema/context/spring-context.xsd
+			    http://www.springframework.org/schema/aop
+			    http://www.springframework.org/schema/aop/spring-aop.xsd
+			    http://www.springframework.org/schema/tx
+			    http://www.springframework.org/schema/tx/spring-tx.xsd
+			    http://www.springframework.org/schema/mvc
+			    http://www.springframework.org/schema/mvc/spring-mvc.xsd
+          http://www.springframework.org/schema/security
+			    http://www.springframework.org/schema/security/spring-security.xsd" >
+
+    <context:component-scan base-package="com.itheima.controller"/>
+
+    <mvc:annotation-driven/>
+
+    <bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+        <property name="prefix" value="/pages/"/>
+        <property name="suffix" value=".jsp"/>
+    </bean>
+
+    <mvc:default-servlet-handler/>
+
+
+    <!--
+        springsecurity相关的配置为什么要放在springmvc的配置文件中？
+        因为：springIOC容器和springIOC子容器（即springmvc容器）是不是同一个容器，
+        springIOC容器是springIOC子容器的父容器，
+        父容器中的对象可以被子容器调用
+        父容器的对象不能被http请求访问
+        子容器可以访问父容器中的对象
+        子容器中的对象才可以被http请求访问
+
+        springsecurity的文件在applicationContext.xml引入，相当于springsecurity配置在springIOC容器中！
+        现在springsecurity的注解添加在子容器类（Controller）上，所以开启注解支持也应
+        配置在子容器的配置文件中，不然注解将不生效！
+        事务的开启同理
+
+    -->
+    <!--
+        开启权限控制的注解支持
+        secured-annotations="enabled"   springSecurity内部的权限控制注解开关
+        pre-post-annotations="enabled"  spring指定的权限控制的注解开关
+        jsr250-annotations="enabled"    开启java250注解支持
+      -->
+    <security:global-method-security
+      secured-annotations="enabled"
+      pre-post-annotations="enabled"
+      jsr250-annotations="enabled"/>
+
+</beans>

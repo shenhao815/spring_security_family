@@ -1,0 +1,103 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:security="http://www.springframework.org/schema/security"
+       xsi:schemaLocation="
+            http://www.springframework.org/schema/beans
+            http://www.springframework.org/schema/beans/spring-beans.xsd
+            http://www.springframework.org/schema/context
+            http://www.springframework.org/schema/context/spring-context.xsd
+            http://www.springframework.org/schema/mvc
+            http://www.springframework.org/schema/mvc/spring-mvc.xsd
+            http://www.springframework.org/schema/tx
+            http://www.springframework.org/schema/tx/spring-tx.xsd
+            http://www.springframework.org/schema/aop
+            http://www.springframework.org/schema/aop/spring-aop.xsd
+            http://www.springframework.org/schema/security
+             http://www.springframework.org/schema/security/spring-security.xsd
+        ">
+  <!--释放静态资源-->
+  <security:http pattern="/css/**" security="none"/>
+  <security:http pattern="/img/**" security="none"/>
+  <security:http pattern="/plugins/**" security="none"/>
+  <security:http pattern="/failer.jsp" security="none"/>
+  <!--配置springsecurity-->
+
+  <!--
+    auto-config=true 表示自动加载springsecurity的配置文件
+    use-expressions=true表示使用spring的el表达式来配置springsecurity
+  -->
+  <security:http auto-config="true" use-expressions="true">
+    <!--让认证页面可以匿名访问-->
+    <security:intercept-url pattern="/login.jsp" access="permitAll()"/>
+    <!--拦截资源-->
+    <!--
+      pattern="/**" 表示拦截所有资源 spring中表示拦截所有一般要带两个* 第一个*代表所有路径 第二*表示子目录以及其参数
+      access="hasAnyRole('ROLE_USER')" 表示只有ROLE_USER角色才能访问该资源
+    -->
+    <security:intercept-url pattern="/**" access="hasAnyRole('ROLE_USER')"/>
+    <!--配置认证信息-->
+    <security:form-login login-page="/login.jsp"
+                         login-processing-url="/login1"
+                         default-target-url="/index.jsp"
+                         authentication-failure-url="/failer.jsp"/>
+    <!--配置退出登录信息-->
+    <security:logout logout-url="/logout"
+                     logout-success-url="/login.jsp"/>
+    <!--去掉csrf拦截的过滤器-->
+    <!--<security:csrf disabled="true"/>-->
+
+    <!--开启remember me过滤器，
+        data-source-ref="dataSource" 指定数据库连接池
+        token-validity-seconds="60" 设置token存储时间为60秒 可省略
+    remember-me-parameter="remember-me" 指定记住的参数名  可省略-->
+    <security:remember-me data-source-ref="dataSource"
+                          token-validity-seconds="60"
+                          remember-me-parameter="remember-me"/>
+
+    <!--springSecurity 只能处理403异常 不推荐-->
+    <!--<security:access-denied-handler error-page="/403.jsp"/>-->
+  </security:http>
+
+  <!--
+  form-login属性详解
+form-login是spring security命名空间配置登录相关信息的标签,它包含如下属性：
+1. login-page 自定义登录页url,默认为/login
+2. login-processing-url 登录请求拦截的url,也就是form表单提交时指定的action
+3. default-target-url 默认登录成功后跳转的url
+4. always-use-default-target 是否总是使用默认的登录成功后跳转url
+5. authentication-failure-url 登录失败后跳转的url
+6. username-parameter 用户名的请求字段 默认为userName
+7. password-parameter 密码的请求字段 默认为password
+8. authentication-success-handler-ref 指向一个AuthenticationSuccessHandler用于处理认证成功的请求,不能和default-target-url还有always-use-default-target同时使用
+9. authentication-success-forward-url 用于authentication-failure-handler-ref
+10. authentication-failure-handler-ref 指向一个AuthenticationFailureHandler用于处理失败的认证请求
+11. authentication-failure-forward-url 用于authentication-failure-handler-ref
+12. authentication-details-source-ref 指向一个AuthenticationDetailsSource,在认证过滤器中使用
+  -->
+
+  <!--设置Spring Security认证用户信息的来源-->
+  <!--
+  springsecurity默认的认证必须是加密的，加上{noop}表示不加密认证
+  -->
+
+  <!---->
+  <bean id="passwordEncoder" class="org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder"/>
+
+  <security:authentication-manager>
+    <security:authentication-provider user-service-ref="userServiceImpl">
+      <security:password-encoder ref="passwordEncoder"/>
+      <!--<security:user-service>
+        <security:user name="user" authorities="ROLE_USER" password="{noop}user"/>
+        <security:user name="admin" authorities="ROLE_ADMIN" password="{noop}admin"/>
+      </security:user-service>-->
+    </security:authentication-provider>
+  </security:authentication-manager>
+
+
+
+</beans>

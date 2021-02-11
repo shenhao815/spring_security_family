@@ -1,0 +1,24 @@
+server:
+  port: 9001
+
+spring:
+  datasource:
+    driver-class-name: com.mysql.jdbc.Driver
+    url: jdbc:mysql://47.92.108.30:3306/spring-security-demo?useUnicode=true&amp;characterEncoding=utf-8&amp;useSSL=false&amp;allowMultiQueries=true&amp;serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+  main:
+    allow-bean-definition-overriding: true #允许我们自己覆盖spring放入到IOC容器的对象
+
+mybatis:
+  type-aliases-package: com.it.domain
+  configuration:
+    map-underscore-to-camel-case: true
+
+logging:
+  level:
+    com.it: debug
+
+rsa:
+  key:
+    pubKeyFile: D:\auth_key\id_key_rsa.pub
